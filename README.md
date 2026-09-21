@@ -14,13 +14,7 @@ Chaque module du circuit part de ce firmware et y greffe sa logique propre. Ce q
 
 Un module n'a ni clavier ni écran. La seule manière de lui donner les identifiants d'un réseau, c'est qu'il en crée un lui-même.
 
-```
-Premier démarrage    aucun /wifi.json, le module ouvre son point d'accès
-Portail captif       toute requête est redirigée vers la page de configuration
-Identifiants saisis  écrits dans /wifi.json sur LittleFS, le module redémarre
-Démarrages suivants  connexion directe au réseau mémorisé
-Connexion perdue     reconnexion automatique, puis repli sur le portail
-```
+<img src="docs/schemas/principe.png" alt="Premier démarrage : aucun wifi.json, le module ouvre son point d'accès. Portail captif : toute requête est redirigée vers la page de configuration. Identifiants saisis : écrits dans wifi.json sur LittleFS, puis redémarrage. Ensuite : connexion directe au réseau mémorisé, reconnexion automatique en cas de coupure puis repli sur le portail." width="100%">
 
 Le fichier `/wifi.json` est déclaré protégé auprès de la bibliothèque, ce qui empêche qu'une opération sur le système de fichiers l'efface par accident. C'est la différence entre un module qu'on reconfigure et un module qu'on doit aller déloger du circuit.
 
@@ -28,23 +22,13 @@ Le fichier `/wifi.json` est déclaré protégé auprès de la bibliothèque, ce 
 
 Un bouton sur GPIO 0, celui qui est déjà câblé sur la plupart des cartes de développement.
 
-| Appui | Effet |
-|:--|:--|
-| 2 à 5 secondes | Réouvre le portail de configuration |
-| 5 secondes ou plus | Efface les identifiants mémorisés |
+<img src="docs/schemas/bouton.png" alt="Appui de 2 à 5 secondes : réouvre le portail de configuration sans rien effacer. Appui de 5 secondes ou plus : efface les identifiants mémorisés, le module repart vierge." width="100%">
 
 Il sert le jour où le réseau a changé de nom ou de clé et où le module, lui, cherche toujours l'ancien.
 
 <img src="docs/sections/s03.png" alt="03 Réglages" width="100%">
 
-| Paramètre | Effet |
-|:--|:--|
-| `setPortalTimeout(3600)` | Durée avant fermeture du portail, une heure ici |
-| `setAPClientCheck(true)` | Le portail ne se ferme pas tant qu'un client y est connecté |
-| `setWebClientCheck(true)` | Chaque requête HTTP relance le compte à rebours |
-| `setCaptivePortal(true)` | Redirige toute requête vers la page de configuration |
-| `setFallbackPolicy(ON_FAIL)` | Le portail ne s'ouvre qu'après un échec de connexion |
-| `setAutoReconnect(true)` | Tentative de reconnexion sans intervention |
+<img src="docs/schemas/reglages.png" alt="setPortalTimeout : durée avant fermeture du portail. setAPClientCheck : le portail ne se ferme pas tant qu'un client y est connecté. setWebClientCheck : chaque requête HTTP relance le compte à rebours. setCaptivePortal : redirige toute requête vers la page de configuration. setFallbackPolicy ON_FAIL : le portail ne s'ouvre qu'après un échec de connexion. setAutoReconnect : tentative de reconnexion sans intervention." width="100%">
 
 Une heure de portail est confortable pour la mise au point, mais généreux pour un module posé dans un circuit : un point d'accès ouvert est un point d'entrée. En exploitation, quelques minutes suffisent.
 
