@@ -32,12 +32,7 @@ Il sert le jour où le réseau a changé de nom ou de clé et où le module, lui
 
 Une heure de portail est confortable pour la mise au point, mais généreux pour un module posé dans un circuit : un point d'accès ouvert est un point d'entrée. En exploitation, quelques minutes suffisent.
 
-Les identifiants du point d'accès vivent dans `include/env.h`, qui n'est pas versionné.
-
-```c
-#define ESP_WIFI_SSID     "WifiManager-MicroCoaster"
-#define ESP_WIFI_PASSWORD "<mot de passe du portail>"
-```
+Les identifiants du point d'accès vivent dans `include/env.h`, qui n'est pas versionné. Copiez [`include/env.h.example`](include/env.h.example) et renseignez-le : sans ce fichier, le firmware ne compile pas, et c'est voulu. Un oubli se voit au build plutôt qu'en production.
 
 Ceux du réseau domestique, eux, ne passent jamais par le code : ils sont saisis dans le portail et restent dans `/wifi.json`, en mémoire du module.
 
