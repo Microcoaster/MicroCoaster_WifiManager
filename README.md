@@ -1,4 +1,9 @@
-# MicroCoaster WiFiManager 🚀
+<div align="center">
+
+<img src="docs/banniere.png" alt="WiFi Manager, firmware de base des modules" width="100%">
+
+</div>
+
 
 > Un gestionnaire WiFi moderne et simple pour connecter tous les modules de ton projet MicroCoaster à une application web centralisée.
 
