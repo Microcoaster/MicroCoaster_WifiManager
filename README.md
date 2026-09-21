@@ -4,29 +4,89 @@
 
 </div>
 
+Socle commun à tous les modules MicroCoaster. Il gère la mise en réseau d'un ESP32 : portail captif au premier démarrage, mémorisation des identifiants, reconnexion automatique, et un bouton de secours pour reprendre la main quand le réseau a changé.
 
-> Un gestionnaire WiFi moderne et simple pour connecter tous les modules de ton projet MicroCoaster à une application web centralisée.
+Chaque module du circuit part de ce firmware et y greffe sa logique propre. Ce qui est réglé ici n'a pas à l'être ailleurs.
 
-## À quoi sert ce projet ?
+**Version 2.0.0**
 
-MicroCoaster WiFiManager permet de connecter facilement chaque module de ton circuit de montagnes russes miniature (switch track, launch track, station, etc.) à un réseau WiFi local, puis à l’application web fournie. Il centralise la configuration WiFi, la gestion des accès et la communication entre les modules et l’interface web.
+<img src="docs/sections/s01.png" alt="01 Principe" width="100%">
 
-### Fonctionnalités principales
-- **Portail de configuration WiFi** : chaque module peut être configuré via un portail web local (mode AP) pour entrer les identifiants WiFi de la box ou du réseau cible.
-- **Connexion automatique** : une fois configuré, le module se connecte automatiquement au réseau WiFi domestique et communique avec l’application web.
-- **Sécurité** : les identifiants WiFi ne sont jamais stockés dans le dépôt, mais dans un fichier local non versionné.
-- **Gestion multi-modules** : chaque module (station, switch, launch, etc.) utilise le même firmware et peut être identifié dans l’application web.
+Un module n'a ni clavier ni écran. La seule manière de lui donner les identifiants d'un réseau, c'est qu'il en crée un lui-même.
 
-## Utilisation
+```
+Premier démarrage    aucun /wifi.json, le module ouvre son point d'accès
+Portail captif       toute requête est redirigée vers la page de configuration
+Identifiants saisis  écrits dans /wifi.json sur LittleFS, le module redémarre
+Démarrages suivants  connexion directe au réseau mémorisé
+Connexion perdue     reconnexion automatique, puis repli sur le portail
+```
 
-1. Flashe le firmware sur chaque module ESP32.
-2. Au premier démarrage, connecte-toi au point d’accès WiFi créé par le module (ex: `WifiManager-MicroCoaster`).
-3. Accède au portail de configuration (généralement http://192.168.4.1) et renseigne les identifiants de ton réseau WiFi domestique.
-4. Le module redémarre et rejoint automatiquement le réseau.
-5. Depuis l’application web fournie, tu peux voir, piloter et configurer chaque module connecté.
+Le fichier `/wifi.json` est déclaré protégé auprès de la bibliothèque, ce qui empêche qu'une opération sur le système de fichiers l'efface par accident. C'est la différence entre un module qu'on reconfigure et un module qu'on doit aller déloger du circuit.
 
-## Auteur
-CyberSpaceRS
+<img src="docs/sections/s02.png" alt="02 Reprise en main" width="100%">
+
+Un bouton sur GPIO 0, celui qui est déjà câblé sur la plupart des cartes de développement.
+
+| Appui | Effet |
+|:--|:--|
+| 2 à 5 secondes | Réouvre le portail de configuration |
+| 5 secondes ou plus | Efface les identifiants mémorisés |
+
+Il sert le jour où le réseau a changé de nom ou de clé et où le module, lui, cherche toujours l'ancien.
+
+<img src="docs/sections/s03.png" alt="03 Réglages" width="100%">
+
+| Paramètre | Effet |
+|:--|:--|
+| `setPortalTimeout(3600)` | Durée avant fermeture du portail, une heure ici |
+| `setAPClientCheck(true)` | Le portail ne se ferme pas tant qu'un client y est connecté |
+| `setWebClientCheck(true)` | Chaque requête HTTP relance le compte à rebours |
+| `setCaptivePortal(true)` | Redirige toute requête vers la page de configuration |
+| `setFallbackPolicy(ON_FAIL)` | Le portail ne s'ouvre qu'après un échec de connexion |
+| `setAutoReconnect(true)` | Tentative de reconnexion sans intervention |
+
+Une heure de portail est confortable pour la mise au point, mais généreux pour un module posé dans un circuit : un point d'accès ouvert est un point d'entrée. En exploitation, quelques minutes suffisent.
+
+Les identifiants du point d'accès vivent dans `include/env.h`, qui n'est pas versionné.
+
+```c
+#define ESP_WIFI_SSID     "WifiManager-MicroCoaster"
+#define ESP_WIFI_PASSWORD "<mot de passe du portail>"
+```
+
+Ceux du réseau domestique, eux, ne passent jamais par le code : ils sont saisis dans le portail et restent dans `/wifi.json`, en mémoire du module.
+
+<img src="docs/sections/s04.png" alt="04 Mise en service" width="100%">
+
+Nécessite [PlatformIO](https://platformio.org/) dans Visual Studio Code.
+
+```bash
+pio run                  # compilation
+pio run -t upload        # téléversement du firmware
+pio run -t uploadfs      # téléversement du portail vers LittleFS
+pio device monitor       # console série, 115200 bauds
+```
+
+Le portail est fait de fichiers statiques dans `data/`. Ils partent sur LittleFS avec `uploadfs`, séparément du firmware : modifier une page ne demande pas de recompiler.
+
+1. Alimenter le module. Il crée le point d'accès `WifiManager-MicroCoaster`.
+2. S'y connecter et ouvrir `http://192.168.4.1`.
+3. Renseigner le réseau de destination.
+4. Le module redémarre et rejoint le réseau.
+
+La console série à 115200 bauds trace chaque étape, et un état de connexion est publié toutes les trente secondes avec l'adresse IP et la puissance du signal.
+
+<img src="docs/sections/s05.png" alt="05 Écosystème" width="100%">
+
+```ini
+ayresnet/AyresWiFiManager   ; portail captif, mémorisation, reconnexion
+```
+
+Les journaux de la bibliothèque sont désactivés par `AWM_ENABLE_LOG=0` dans `platformio.ini`, afin que la console ne mélange pas deux langues. Système de fichiers embarqué : **LittleFS**, il héberge les pages du portail et `/wifi.json`.
+
+Modules qui partent de ce socle : [Switch Track](https://github.com/Microcoaster/Switch-Track), [Launch Track](https://github.com/Microcoaster/Launch-Track), [Lift Hill](https://github.com/Microcoaster/Lift-Hill), [Module Audio](https://github.com/Microcoaster/Module-Audio), [Smoke Machine](https://github.com/Microcoaster/Smoke-Machine). Le tout est piloté par la [WebApp](https://github.com/Microcoaster/MicroCoasterWebApp).
 
 ---
-Pour toute question ou contribution, ouvre une issue ou un pull request !
+
+<sub>MicroCoaster · Auteur : Cybertrist</sub>
