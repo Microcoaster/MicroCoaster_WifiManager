@@ -34,8 +34,6 @@ Une heure de portail est confortable pour la mise au point, mais généreux pour
 
 Les identifiants du point d'accès vivent dans `include/env.h`, qui n'est pas versionné.
 
-<img src="docs/blocs/01.png" alt="Fichier include/env.h : identifiants du point d'accès" width="100%">
-
 ```c
 #define ESP_WIFI_SSID     "WifiManager-MicroCoaster"
 #define ESP_WIFI_PASSWORD "<mot de passe du portail>"
@@ -46,8 +44,6 @@ Ceux du réseau domestique, eux, ne passent jamais par le code : ils sont saisis
 <img src="docs/sections/s04.png" alt="04 Mise en service" width="100%">
 
 Nécessite [PlatformIO](https://platformio.org/) dans Visual Studio Code.
-
-<img src="docs/blocs/02.png" alt="Terminal bash : compiler et téléverser" width="100%">
 
 ```bash
 pio run                  # compilation
@@ -66,8 +62,6 @@ Le portail est fait de fichiers statiques dans `data/`. Ils partent sur LittleFS
 La console série à 115200 bauds trace chaque étape, et un état de connexion est publié toutes les trente secondes avec l'adresse IP et la puissance du signal.
 
 <img src="docs/sections/s05.png" alt="05 Écosystème" width="100%">
-
-<img src="docs/blocs/03.png" alt="Fichier platformio.ini : bibliothèques" width="100%">
 
 ```ini
 ayresnet/AyresWiFiManager   ; portail captif, mémorisation, reconnexion
