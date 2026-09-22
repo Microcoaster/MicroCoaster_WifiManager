@@ -69,7 +69,7 @@ ayresnet/AyresWiFiManager   ; captive portal, storage, reconnection
 
 The library logs are turned off through `AWM_ENABLE_LOG=0` in `platformio.ini`, so the console does not mix two languages. Embedded filesystem: **LittleFS**, which holds the portal pages and `/wifi.json`.
 
-Modules built on this base: [Switch Track](https://github.com/Microcoaster/Switch-Track), [Launch Track](https://github.com/Microcoaster/Launch-Track), [Lift Hill](https://github.com/Microcoaster/Lift-Hill), [Audio module](https://github.com/Microcoaster/Module-Audio), [Smoke Machine](https://github.com/Microcoaster/Smoke-Machine). The whole thing is driven by the [WebApp](https://github.com/Microcoaster/MicroCoasterWebApp).
+Modules built on this base: [Switch Track](https://github.com/Microcoaster/Switch-Track/blob/main/README.en.md), [Launch Track](https://github.com/Microcoaster/Launch-Track/blob/main/README.en.md), [Lift Hill](https://github.com/Microcoaster/Lift-Hill/blob/main/README.en.md), [Audio module](https://github.com/Microcoaster/Module-Audio/blob/main/README.en.md), [Smoke Machine](https://github.com/Microcoaster/Smoke-Machine/blob/main/README.en.md). The whole thing is driven by the [WebApp](https://github.com/Microcoaster/MicroCoasterWebApp/blob/main/README.en.md).
 
 ---
 
